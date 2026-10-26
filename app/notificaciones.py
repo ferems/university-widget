@@ -20,7 +20,7 @@ class Notificador:
     def enviar(self, titulo: str, mensaje: str, url: str = "") -> None:
         if Notification is not None and sys.platform == "win32":
             try:
-                n = Notification(app_id="Canvas Widget", title=titulo, msg=mensaje[:250],
+                n = Notification(app_id="College Widget", title=titulo, msg=mensaje[:250],
                                  duration="long", launch=url or "")
                 n.set_audio(audio.Default, loop=False)
                 n.show()

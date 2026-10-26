@@ -788,7 +788,7 @@ class WidgetCanvas(QWidget):
             self.l_estado.setText("Actualizando…")
 
     def probar_notificacion(self):
-        self.notificador.enviar("Canvas Widget", "Esta es una notificación de prueba. ¡Funciona!")
+        self.notificador.enviar("College Widget", "Esta es una notificación de prueba. ¡Funciona!")
 
     def abrir_conexion(self):
         if DialogoConexion(self, self.ajustes).exec():

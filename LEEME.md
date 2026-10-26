@@ -1,4 +1,4 @@
-# Canvas Widget
+# College Widget
 
 Un widget siempre visible que te avisa de tus pendientes de Canvas (CEUTEC / Unitec Honduras).
 Solo **lee** tu Canvas: no entrega, envía ni modifica nada.

@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
-title Canvas Widget
+title College Widget
 
 rem ---- Python que se instala solo si no esta (version oficial de python.org) ----
 set "PYVER=3.12.10"

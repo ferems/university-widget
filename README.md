@@ -1,4 +1,4 @@
-# Canvas Widget
+# College Widget
 
 Widget para Windows que te avisa de tus pendientes de estudio: un ícono flotante con el número de tareas por entregar,
 recordatorios de Windows (24 h, 3 h y 1 h antes), anuncios de tus docentes, calificaciones y promedios.

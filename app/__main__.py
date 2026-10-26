@@ -39,10 +39,10 @@ def main() -> int:
     sys.excepthook = _error_no_controlado
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
-    app.setApplicationName("Canvas Widget")
+    app.setApplicationName("College Widget")
 
     bandeja = QSystemTrayIcon(crear_icono(), app)
-    bandeja.setToolTip("Canvas Widget")
+    bandeja.setToolTip("College Widget")
     notificador = Notificador(bandeja)
     widget = WidgetCanvas(Servicio(), notificador, app)
 
