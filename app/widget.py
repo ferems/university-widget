@@ -322,7 +322,7 @@ class WidgetCanvas(QWidget):
         urg = self._hay_urgente()
         if not self.expandido:
             pad, d = self.px(7), self.px(60)
-            base = (URG_A if self._parpadeo else URG_B) if urg else (VERDE if self.n_activos == 0 else QColor(self.ajustes["color_icono"]))
+            base = (URG_A if self._parpadeo else URG_B) if urg else QColor(self.ajustes["color_icono"])
             sombra = QColor(0, 0, 0, 60)
             p.setPen(Qt.NoPen)
             p.setBrush(sombra)
