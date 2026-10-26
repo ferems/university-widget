@@ -9,20 +9,25 @@ from PySide6.QtWidgets import (QCheckBox, QColorDialog, QComboBox, QDialog, QHBo
                                QTimeEdit, QVBoxLayout)
 
 from . import credenciales, formato, iconos, inicio_windows
-from .ajustes import ESCALAS, FONDOS, ICONOS, Ajustes, normalizar_url, url_canvas
+from .ajustes import ESCALAS, FONDOS, ICONOS, Ajustes, normalizar_url, url_canvas, url_moodle
+from .plataformas import GUIAS_ICAL
 from .modelos import Pendiente
 
-AYUDA_TOKEN = ("En Canvas (en el navegador): foto de perfil → Configuración → baja hasta «Integraciones aprobadas» "
+AYUDA = {
+    "canvas": ("En Canvas (en el navegador): foto de perfil → Configuración → baja hasta «Integraciones aprobadas» "
                "→ «+ Nuevo token de acceso». Ponle un nombre, deja la fecha de vencimiento vacía y copia el "
-               "token que aparece (solo se muestra una vez). Con el token el widget muestra tareas, cursos, "
-               "promedios, notas y anuncios. Si no ves el botón, tu universidad no lo permite: usa la otra opción.")
-AYUDA_ICAL = ("Sirve para cualquier plataforma que te deje exportar o suscribirte a su calendario. Busca en su calendario "
-              "una opción como «Exportar», «Suscribirse» o «Fuente / Feed» y copia el enlace.\n"
-              "• Canvas: Calendario → «Fuente de calendario».\n"
-              "• Moodle: Calendario → «Importar o exportar calendarios» → «Exportar calendario» → «Obtener URL del calendario».\n"
-              "• Google Classroom: en Google Calendar, ajustes del calendario de la clase → «Dirección secreta en formato iCal».\n"
-              "• Blackboard, Brightspace, Schoology, etc.: busca «suscribirse» o «exportar calendario».\n"
-              "Con este modo solo se leen las fechas del calendario (no hay notas, promedios ni anuncios, ni se sabe si ya entregaste).")
+               "token que aparece (solo se muestra una vez). Muestra tareas, cursos, promedios, notas y anuncios."),
+    "moodle": ("Escribe la dirección de tu Moodle (la que usas para entrar). Luego, en Moodle: tu foto de perfil → "
+               "Preferencias → Cuenta de usuario → «Claves de seguridad» → copia la clave de «Moodle mobile web service». "
+               "Muestra tareas (y si ya entregaste), cursos, promedios, notas y anuncios. Si no ves esa clave, tu "
+               "universidad no la activó: usa «Otra plataforma»."),
+    "ical": ("Para Google Classroom, Blackboard, Brightspace, Schoology, Teams y cualquier otra. Solo se leen las fechas del "
+             "calendario: no hay notas, promedios ni anuncios, ni se sabe si ya entregaste. Elige tu plataforma "
+             "para ver dónde sacar el enlace:"),
+}
+NOMBRES = {"canvas": "Canvas — token de acceso (recomendado)", "moodle": "Moodle — token de acceso",
+           "ical": "Otra plataforma — enlace de calendario (iCal)"}
+CREDENCIAL = {"canvas": credenciales.TOKEN, "moodle": credenciales.MOODLE, "ical": credenciales.ICAL}
 
 
 class DialogoConexion(QDialog):
@@ -37,27 +42,33 @@ class DialogoConexion(QDialog):
         lay = QVBoxLayout(self)
         lay.addWidget(QLabel("¿Cómo quieres conectarte?"))
         self.tipo = QComboBox()
-        self.tipo.addItem("Canvas — token de acceso (recomendado)", credenciales.TOKEN)
-        self.tipo.addItem("Cualquier plataforma — enlace de calendario (iCal)", credenciales.ICAL)
+        for k, nombre in NOMBRES.items():
+            self.tipo.addItem(nombre, k)
+        actual = self.a["plataforma"]
+        if actual in NOMBRES:
+            self.tipo.setCurrentIndex(list(NOMBRES).index(actual))
         self.tipo.currentIndexChanged.connect(self._cambio)
         lay.addWidget(self.tipo)
         self.ayuda = QLabel()
         self.ayuda.setWordWrap(True)
         lay.addWidget(self.ayuda)
+        self.guia_combo = QComboBox()
+        self.guia_combo.addItems([n for n in GUIAS_ICAL if n != "Canvas"])
+        self.guia_combo.currentIndexChanged.connect(self._guia)
+        lay.addWidget(self.guia_combo)
+        self.guia = QLabel()
+        self.guia.setWordWrap(True)
+        self.guia.setFixedWidth(556)
+        lay.addWidget(self.guia)
 
-        self.l_sitio = QLabel("Dirección de tu Canvas:")
-        self.sitio = QLineEdit(url_canvas())
-        self.sitio.setPlaceholderText("https://tu-universidad.instructure.com")
+        self.l_sitio = QLabel()
+        self.sitio = QLineEdit()
         lay.addWidget(self.l_sitio)
         lay.addWidget(self.sitio)
 
         self.caja = QLineEdit()
         self.caja.setEchoMode(QLineEdit.Password)
-        self.caja.setPlaceholderText("Pega aquí (se verá oculto)")
         lay.addWidget(self.caja)
-        self.c_olvidar = QCheckBox("Dejar de usar el token de Canvas que ya está guardado")
-        self.c_olvidar.setChecked(True)
-        lay.addWidget(self.c_olvidar)
         self.estado = QLabel("")
         self.estado.setWordWrap(True)
         lay.addWidget(self.estado)
@@ -72,45 +83,60 @@ class DialogoConexion(QDialog):
         lay.addLayout(fila)
         self._cambio()
 
-    def _cambio(self):
-        clave = self.tipo.currentData()
-        es_token = clave == credenciales.TOKEN
-        self.ayuda.setText(AYUDA_TOKEN if es_token else AYUDA_ICAL)
-        self.ayuda.setFixedWidth(556)  # asi Qt calcula bien cuantas lineas ocupa el texto
-        self.ayuda.setMinimumHeight(self.ayuda.heightForWidth(556))
-        self.l_sitio.setVisible(es_token)
-        self.sitio.setVisible(es_token)
-        self.c_olvidar.setVisible(not es_token and credenciales.obtener(credenciales.TOKEN) is not None)
-        self.caja.setPlaceholderText("Pega aquí el token (se verá oculto)" if es_token else "Pega aquí el enlace (se verá oculto)")
-        guardado = credenciales.obtener(clave) is not None
-        self.estado.setStyleSheet("")
-        self.estado.setText("Ya hay uno guardado (no se muestra). Si pegas otro, lo reemplaza." if guardado else "")
+    def _guia(self):
+        self.guia.setText(GUIAS_ICAL.get(self.guia_combo.currentText(), ""))
+        self.guia.setMinimumHeight(self.guia.heightForWidth(556))
         self.layout().activate()
         self.adjustSize()
+
+    def _cambio(self):
+        k = self.tipo.currentData()
+        self.ayuda.setText(AYUDA[k])
+        self.ayuda.setFixedWidth(556)  # asi Qt calcula bien cuantas lineas ocupa el texto
+        self.ayuda.setMinimumHeight(self.ayuda.heightForWidth(556))
+        con_sitio = k in ("canvas", "moodle")
+        self.l_sitio.setVisible(con_sitio)
+        self.sitio.setVisible(con_sitio)
+        self.guia_combo.setVisible(k == "ical")
+        self.guia.setVisible(k == "ical")
+        if k == "canvas":
+            self.l_sitio.setText("Dirección de tu Canvas:")
+            self.sitio.setText(url_canvas())
+            self.sitio.setPlaceholderText("https://tu-universidad.instructure.com")
+        elif k == "moodle":
+            self.l_sitio.setText("Dirección de tu Moodle:")
+            self.sitio.setText(url_moodle())
+            self.sitio.setPlaceholderText("https://campus.tu-universidad.edu.hn")
+        self.caja.setPlaceholderText("Pega aquí el enlace (se verá oculto)" if k == "ical" else "Pega aquí el token (se verá oculto)")
+        guardado = credenciales.obtener(CREDENCIAL[k]) is not None
+        self.estado.setStyleSheet("")
+        self.estado.setText("Ya hay uno guardado (no se muestra). Si pegas otro, lo reemplaza." if guardado else "")
+        self._guia()
 
     def _error(self, texto):
         self.estado.setStyleSheet("color:#b91c1c;")
         self.estado.setText(texto)
 
     def _guardar(self):
-        clave = self.tipo.currentData()
+        k = self.tipo.currentData()
         valor = self.caja.text().strip()
         if not valor:
             self._error("Pega primero el valor.")
             return
-        if clave == credenciales.TOKEN:
-            try:
+        try:
+            if k == "canvas":
                 self.a["url_canvas"] = normalizar_url(self.sitio.text())
-            except ValueError as e:
-                self._error(str(e))
-                return
-        elif not valor.lower().startswith(("https://", "http://", "webcal://")):
+            elif k == "moodle":
+                self.a["url_moodle"] = normalizar_url(self.sitio.text(), True, "Moodle")
+        except ValueError as e:
+            self._error(str(e))
+            return
+        if k == "ical" and not valor.lower().startswith(("https://", "http://", "webcal://")):
             self._error("El enlace de calendario debe empezar con https:// o webcal://")
             return
         try:
-            credenciales.guardar(clave, valor)
-            if clave == credenciales.ICAL and self.c_olvidar.isVisible() and self.c_olvidar.isChecked():
-                credenciales.borrar(credenciales.TOKEN)
+            credenciales.guardar(CREDENCIAL[k], valor)
+            self.a["plataforma"] = k
             self.a.guardar()
         except Exception as e:
             self._error(f"No se pudo guardar en el Administrador de credenciales: {type(e).__name__}")

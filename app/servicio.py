@@ -7,10 +7,11 @@ from typing import List, Optional
 
 import requests
 
-from . import credenciales, ical, recordatorios, tareas
+from . import ajustes, credenciales, ical, recordatorios, tareas
 from .almacen import Almacen
 from .canvas_api import ClienteCanvas, ErrorAutenticacion
 from .config import DIAS_ADELANTE, DIAS_ATRAS, DIAS_DETECCION
+from .plataformas.moodle import ClienteMoodle
 from .modelos import Anuncio, Aviso, Curso, Nota, Pendiente, Recordatorio
 from .resumen import en_semana
 
@@ -44,12 +45,15 @@ def _seguro(fn, defecto):
 
 class Servicio:
     def __init__(self, almacen: Almacen | None = None, cred=credenciales, cliente_fabrica=ClienteCanvas,
-                 lector_ical=ical.leer, leer_tareas=tareas.leer_estado):
+                 lector_ical=ical.leer, leer_tareas=tareas.leer_estado,
+                 moodle_fabrica=ClienteMoodle, plataforma=ajustes.plataforma_elegida):
         self.almacen = almacen or Almacen()
         self.cred = cred
         self.cliente_fabrica = cliente_fabrica
         self.lector_ical = lector_ical
         self.leer_tareas = leer_tareas
+        self.moodle_fabrica = moodle_fabrica
+        self.plataforma = plataforma
 
     # --- ultimo estado guardado --------------------------------------
     def desde_cache(self, **extra) -> Resultado:
@@ -66,7 +70,18 @@ class Servicio:
 
     # --- descarga ------------------------------------------------------
     def _descargar(self, token, enlace, ahora):
-        if token:
+        plat = self.plataforma() or ("canvas" if token else "ical")
+        if plat == "moodle":
+            mtoken = self.cred.obtener(credenciales.MOODLE)
+            if mtoken:
+                try:
+                    return self.moodle_fabrica(mtoken).descargar(ahora, DIAS_ATRAS, DIAS_DETECCION)
+                except ErrorAutenticacion:
+                    if not enlace:
+                        raise
+            elif not enlace:
+                raise ErrorAutenticacion("Falta el token de Moodle.")
+        elif plat == "canvas" and token:
             try:
                 c = self.cliente_fabrica(token)
                 desde, hasta = ahora - timedelta(days=DIAS_ATRAS), ahora + timedelta(days=DIAS_DETECCION)
@@ -89,21 +104,23 @@ class Servicio:
             except ErrorAutenticacion:
                 if not enlace:
                     raise
+        if not enlace:
+            raise ErrorAutenticacion("Falta el enlace de calendario.")
         return self.lector_ical(enlace), [], "ical", {}
 
     def refrescar(self, ahora: datetime | None = None) -> Resultado:
         ahora = ahora or datetime.now(timezone.utc)
         token, enlace = self.cred.obtener(credenciales.TOKEN), self.cred.obtener(credenciales.ICAL)
-        if not token and not enlace:
+        if not token and not enlace and not self.cred.obtener(credenciales.MOODLE):
             return self.desde_cache(sin_credenciales=True)
         try:
             todos, actividad, fuente, extras = self._descargar(token, enlace, ahora)
         except (requests.ConnectionError, requests.Timeout):
             return self.desde_cache(sin_conexion=True)
         except ErrorAutenticacion:
-            return self.desde_cache(error="Canvas no aceptó el token guardado. Vuelve a conectar (Conexión…).")
+            return self.desde_cache(error="Tu plataforma no aceptó el token guardado. Vuelve a conectar (Conexión…).")
         except requests.RequestException as e:
-            return self.desde_cache(error=f"Canvas respondió con un error ({type(e).__name__}). Se muestran los últimos datos.")
+            return self.desde_cache(error=f"Tu plataforma respondió con un error ({type(e).__name__}). Se muestran los últimos datos.")
 
         est = self.almacen.cargar()
         avisos: List[Aviso] = []

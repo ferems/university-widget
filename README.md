@@ -2,8 +2,9 @@
 
 Widget para Windows que te avisa de tus pendientes de estudio: un ícono flotante con el número de tareas por entregar,
 recordatorios de Windows (24 h, 3 h y 1 h antes), anuncios de tus docentes, calificaciones y promedios.
-Hecho para estudiantes de CEUTEC / Unitec Honduras. Funciona con **cualquier Canvas** y, por calendario (iCal), con
-**casi cualquier plataforma**: Moodle, Google Classroom, Blackboard, Brightspace, Schoology…
+Hecho para estudiantes de CEUTEC / Unitec Honduras. Funciona con **cualquier Canvas**,
+Moodle (con API completa: tareas, entregas, promedios, notas y anuncios) y, por calendario (iCal), con Google Classroom,
+Blackboard, Brightspace, Schoology y cualquier otra que ofrezca un enlace de calendario.
 
 - Ícono redondo con insignia que se expande hacia donde haya espacio, se pega a los bordes y se vuelve semitransparente.
 - Pestañas: **Pendientes** (por día), **Cursos** (con promedio), **Anuncios** y **Notas**.
@@ -27,9 +28,12 @@ Hecho para estudiantes de CEUTEC / Unitec Honduras. Funciona con **cualquier Can
 ## Conectarte a tu plataforma
 - **Canvas con token (recomendado):** muestra tareas, cursos, promedios, notas y anuncios. En Canvas: foto de perfil → Configuración →
   «Integraciones aprobadas» → «+ Nuevo token de acceso». En la ventana de conexión escribe también la dirección de tu Canvas.
-- **Cualquier plataforma con calendario (iCal):** busca en su calendario «Exportar», «Suscribirse» o «Fuente» y pega el enlace.
+- **Moodle con token:** en Moodle: tu perfil → Preferencias → Claves de seguridad → «Moodle mobile web service». Escribe también la
+  dirección de tu Moodle. Muestra tareas (y si ya entregaste), cursos, promedios, notas y anuncios. *Probado con respuestas simuladas;
+  no se ha probado contra un Moodle real, así que si algo falla avísanos.*
+- **Otra plataforma con calendario (iCal):** busca en su calendario «Exportar», «Suscribirse» o «Fuente» y pega el enlace.
   Moodle: Calendario → Importar o exportar calendarios → Exportar calendario → Obtener URL. Google Classroom: «Dirección secreta en formato iCal»
-  del calendario de la clase. Con este modo solo se leen las fechas (no hay notas, promedios ni anuncios).
+  del calendario de la clase. Con este modo solo se leen las fechas (no hay notas, promedios ni anuncios), pero los eventos que se repiten sí se expanden.
 
 Más detalles de uso en [LEEME.md](LEEME.md).
 

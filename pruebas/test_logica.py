@@ -138,7 +138,7 @@ ACTIVIDAD = [
 def servicio(tmp_path, rutas, token="T", enlace=None):
     class Cred:
         def obtener(self, n):
-            return {"token": token, "ical_url": enlace}[n]
+            return {"token": token, "ical_url": enlace}.get(n)
 
     ses = SesionFalsa(rutas)
     return Servicio(Almacen(tmp_path), Cred(), lambda t: ClienteCanvas(t, sesion=ses)), ses

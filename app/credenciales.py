@@ -10,6 +10,7 @@ from .config import SERVICIO_KEYRING
 
 TOKEN = "token"
 ICAL = "ical_url"
+MOODLE = "moodle_token"
 
 
 def obtener(nombre: str) -> Optional[str]:

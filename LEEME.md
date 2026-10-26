@@ -20,14 +20,20 @@ En la ventana «Conectar con tu plataforma» elige **una** opción. Lo que pegue
 - **Canvas — token de acceso (recomendado):** en Canvas, foto de perfil → Configuración → «Integraciones aprobadas» →
   «+ Nuevo token de acceso». Deja la fecha de vencimiento vacía y copia el token (solo se muestra una vez).
   Escribe también la dirección de tu Canvas (la de CEUTEC viene puesta). Así se ven tareas, cursos, promedios, notas y anuncios.
-- **Cualquier plataforma — enlace de calendario (iCal):** busca en el calendario de tu plataforma «Exportar», «Suscribirse» o «Fuente / Feed».
+- **Moodle — token de acceso:** en Moodle, tu foto de perfil → Preferencias → Cuenta de usuario → «Claves de seguridad» → copia la
+  clave de «Moodle mobile web service». Escribe también la dirección de tu Moodle. Se ven tareas (y si ya entregaste), cursos,
+  promedios, notas y anuncios. Aviso: se probó con respuestas simuladas, no con un Moodle real. Si tu universidad no activó esa
+  clave, usa la opción de calendario.
+- **Otra plataforma — enlace de calendario (iCal):** busca en el calendario de tu plataforma «Exportar», «Suscribirse» o «Fuente / Feed».
   - Canvas: Calendario → «Fuente de calendario».
   - Moodle: Calendario → «Importar o exportar calendarios» → «Exportar calendario» → «Obtener URL del calendario».
   - Google Classroom: en Google Calendar, ajustes del calendario de la clase → «Dirección secreta en formato iCal».
-  - Blackboard, Brightspace, Schoology…: busca «suscribirse» o «exportar calendario».
+  - Brightspace: Calendario → «Suscribirse». Schoology: Calendario → exportar. Blackboard: opción de fuente/suscripción del calendario
+    (si tu universidad no la activó, no habrá enlace). Outlook/Teams: «Publicar un calendario» (las tareas de Teams normalmente no salen ahí).
+  La ventana de conexión muestra estos pasos al elegir tu plataforma.
 
   Limitaciones: solo se leen las fechas del calendario; no hay notas, promedios ni anuncios, no se sabe si ya entregaste una tarea
-  (por eso no avisa de «vencidas») y los eventos que se repiten no se expanden.
+  (por eso no avisa de «vencidas») y las clases o eventos que se repiten sí se muestran en cada fecha.
 
 ## El ícono y el panel
 - **Ícono redondo:** muestra cuántas tareas tienes pendientes. Se pone semitransparente cuando no lo usas.
