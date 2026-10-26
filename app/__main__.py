@@ -62,6 +62,10 @@ def main() -> int:
     bandeja.show()
 
     widget.show()
+    widget.raise_()
+    g = widget.geometry()
+    logging.info("Widget en x=%s y=%s (%sx%s), pantalla disponible=%s, devicePixelRatio=%s", g.x(), g.y(), g.width(),
+                 g.height(), widget.screen().availableGeometry().getRect(), widget.devicePixelRatio())
     QTimer.singleShot(800, widget.actualizar_ahora)
     return app.exec()
 
