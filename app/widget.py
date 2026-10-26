@@ -791,7 +791,7 @@ class WidgetCanvas(QWidget):
         self.notificador.enviar("Canvas Widget", "Esta es una notificación de prueba. ¡Funciona!")
 
     def abrir_conexion(self):
-        if DialogoConexion(self).exec():
+        if DialogoConexion(self, self.ajustes).exec():
             self.actualizar_ahora()
 
     def abrir_ajustes(self):
@@ -808,7 +808,7 @@ class WidgetCanvas(QWidget):
         self.pendientes = res.pendientes
         hora = res.actualizado.astimezone(ZONA).strftime("%I:%M %p").lstrip("0") if res.actualizado else "—"
         if res.sin_credenciales:
-            self.l_estado.setText("Aún no estás conectado a Canvas. Presiona «Conexión…».")
+            self.l_estado.setText("Aún no estás conectado a tu plataforma. Presiona «Conexión…».")
         elif res.sin_conexion:
             self.l_estado.setText(f"Sin internet. Mostrando los últimos datos guardados (de las {hora}).")
         elif res.error:

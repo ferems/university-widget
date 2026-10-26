@@ -10,7 +10,7 @@ from urllib.parse import urljoin
 
 import requests
 
-from .config import URL_CANVAS
+from .ajustes import url_canvas
 from .modelos import Actividad, Anuncio, Curso, Nota, Pendiente, leer_fecha_iso
 
 
@@ -25,8 +25,8 @@ def _texto_plano(contenido: str, limite: int = 140) -> str:
 
 
 class ClienteCanvas:
-    def __init__(self, token: str, base: str = URL_CANVAS, sesion=None):
-        self.base = base.rstrip("/")
+    def __init__(self, token: str, base: str | None = None, sesion=None):
+        self.base = (base or url_canvas()).rstrip("/")
         self.s = sesion or requests.Session()
         self.s.headers.update({"Authorization": f"Bearer {token}"})
 

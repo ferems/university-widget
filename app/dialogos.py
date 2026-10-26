@@ -9,42 +9,55 @@ from PySide6.QtWidgets import (QCheckBox, QColorDialog, QComboBox, QDialog, QHBo
                                QTimeEdit, QVBoxLayout)
 
 from . import credenciales, formato, iconos, inicio_windows
-from .ajustes import ESCALAS, FONDOS, ICONOS, Ajustes
-from .config import URL_CANVAS
+from .ajustes import ESCALAS, FONDOS, ICONOS, Ajustes, normalizar_url, url_canvas
 from .modelos import Pendiente
 
-AYUDA = {
-    "token": ("En Canvas (en el navegador): foto de perfil → Configuración → baja hasta «Integraciones aprobadas» "
-              "→ «+ Nuevo token de acceso». Ponle un nombre, deja la fecha de vencimiento vacía y copia el "
-              "token que aparece (solo se muestra una vez). Si no ves el botón, tu universidad no lo permite: "
-              "usa la otra opción."),
-    "ical": ("En Canvas: menú Calendario → botón «Fuente de calendario» (abajo a la derecha) → copia el enlace "
-             "que aparece. Con esta opción no se sabe si una tarea ya fue entregada."),
-}
+AYUDA_TOKEN = ("En Canvas (en el navegador): foto de perfil → Configuración → baja hasta «Integraciones aprobadas» "
+               "→ «+ Nuevo token de acceso». Ponle un nombre, deja la fecha de vencimiento vacía y copia el "
+               "token que aparece (solo se muestra una vez). Con el token el widget muestra tareas, cursos, "
+               "promedios, notas y anuncios. Si no ves el botón, tu universidad no lo permite: usa la otra opción.")
+AYUDA_ICAL = ("Sirve para cualquier plataforma que te deje exportar o suscribirte a su calendario. Busca en su calendario "
+              "una opción como «Exportar», «Suscribirse» o «Fuente / Feed» y copia el enlace.\n"
+              "• Canvas: Calendario → «Fuente de calendario».\n"
+              "• Moodle: Calendario → «Importar o exportar calendarios» → «Exportar calendario» → «Obtener URL del calendario».\n"
+              "• Google Classroom: en Google Calendar, ajustes del calendario de la clase → «Dirección secreta en formato iCal».\n"
+              "• Blackboard, Brightspace, Schoology, etc.: busca «suscribirse» o «exportar calendario».\n"
+              "Con este modo solo se leen las fechas del calendario (no hay notas, promedios ni anuncios, ni se sabe si ya entregaste).")
 
 
 class DialogoConexion(QDialog):
-    """Pide el token o el enlace iCal con la caja oculta y lo guarda en el Administrador de credenciales."""
+    """Elige la plataforma y guarda el token / enlace en el Administrador de credenciales de Windows."""
 
-    def __init__(self, padre=None):
+    def __init__(self, padre=None, ajustes: Ajustes | None = None):
         super().__init__(padre)
-        self.setWindowTitle("Conectar con Canvas")
+        self.a = ajustes or Ajustes()
+        self.setWindowTitle("Conectar con tu plataforma")
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
-        self.setMinimumWidth(460)
+        self.setFixedWidth(580)
         lay = QVBoxLayout(self)
-        lay.addWidget(QLabel(f"Sitio: {URL_CANVAS}"))
+        lay.addWidget(QLabel("¿Cómo quieres conectarte?"))
         self.tipo = QComboBox()
-        self.tipo.addItem("Token de acceso (recomendado)", credenciales.TOKEN)
-        self.tipo.addItem("Enlace de Fuente de calendario (iCal)", credenciales.ICAL)
+        self.tipo.addItem("Canvas — token de acceso (recomendado)", credenciales.TOKEN)
+        self.tipo.addItem("Cualquier plataforma — enlace de calendario (iCal)", credenciales.ICAL)
         self.tipo.currentIndexChanged.connect(self._cambio)
         lay.addWidget(self.tipo)
         self.ayuda = QLabel()
         self.ayuda.setWordWrap(True)
         lay.addWidget(self.ayuda)
+
+        self.l_sitio = QLabel("Dirección de tu Canvas:")
+        self.sitio = QLineEdit(url_canvas())
+        self.sitio.setPlaceholderText("https://tu-universidad.instructure.com")
+        lay.addWidget(self.l_sitio)
+        lay.addWidget(self.sitio)
+
         self.caja = QLineEdit()
         self.caja.setEchoMode(QLineEdit.Password)
         self.caja.setPlaceholderText("Pega aquí (se verá oculto)")
         lay.addWidget(self.caja)
+        self.c_olvidar = QCheckBox("Dejar de usar el token de Canvas que ya está guardado")
+        self.c_olvidar.setChecked(True)
+        lay.addWidget(self.c_olvidar)
         self.estado = QLabel("")
         self.estado.setWordWrap(True)
         lay.addWidget(self.estado)
@@ -61,19 +74,46 @@ class DialogoConexion(QDialog):
 
     def _cambio(self):
         clave = self.tipo.currentData()
-        self.ayuda.setText(AYUDA["token" if clave == credenciales.TOKEN else "ical"])
+        es_token = clave == credenciales.TOKEN
+        self.ayuda.setText(AYUDA_TOKEN if es_token else AYUDA_ICAL)
+        self.ayuda.setFixedWidth(556)  # asi Qt calcula bien cuantas lineas ocupa el texto
+        self.ayuda.setMinimumHeight(self.ayuda.heightForWidth(556))
+        self.l_sitio.setVisible(es_token)
+        self.sitio.setVisible(es_token)
+        self.c_olvidar.setVisible(not es_token and credenciales.obtener(credenciales.TOKEN) is not None)
+        self.caja.setPlaceholderText("Pega aquí el token (se verá oculto)" if es_token else "Pega aquí el enlace (se verá oculto)")
         guardado = credenciales.obtener(clave) is not None
+        self.estado.setStyleSheet("")
         self.estado.setText("Ya hay uno guardado (no se muestra). Si pegas otro, lo reemplaza." if guardado else "")
+        self.layout().activate()
+        self.adjustSize()
+
+    def _error(self, texto):
+        self.estado.setStyleSheet("color:#b91c1c;")
+        self.estado.setText(texto)
 
     def _guardar(self):
+        clave = self.tipo.currentData()
         valor = self.caja.text().strip()
         if not valor:
-            self.estado.setText("Pega primero el valor.")
+            self._error("Pega primero el valor.")
+            return
+        if clave == credenciales.TOKEN:
+            try:
+                self.a["url_canvas"] = normalizar_url(self.sitio.text())
+            except ValueError as e:
+                self._error(str(e))
+                return
+        elif not valor.lower().startswith(("https://", "http://", "webcal://")):
+            self._error("El enlace de calendario debe empezar con https:// o webcal://")
             return
         try:
-            credenciales.guardar(self.tipo.currentData(), valor)
+            credenciales.guardar(clave, valor)
+            if clave == credenciales.ICAL and self.c_olvidar.isVisible() and self.c_olvidar.isChecked():
+                credenciales.borrar(credenciales.TOKEN)
+            self.a.guardar()
         except Exception as e:
-            self.estado.setText(f"No se pudo guardar en el Administrador de credenciales: {type(e).__name__}")
+            self._error(f"No se pudo guardar en el Administrador de credenciales: {type(e).__name__}")
             return
         self.caja.clear()
         self.accept()

@@ -22,3 +22,10 @@ def obtener(nombre: str) -> Optional[str]:
 
 def guardar(nombre: str, valor: str) -> None:
     keyring.set_password(SERVICIO_KEYRING, nombre, valor.strip())
+
+
+def borrar(nombre: str) -> None:
+    try:
+        keyring.delete_password(SERVICIO_KEYRING, nombre)
+    except Exception:
+        pass

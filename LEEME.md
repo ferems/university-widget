@@ -4,23 +4,30 @@ Un widget siempre visible que te avisa de tus pendientes de Canvas (CEUTEC / Uni
 Solo **lee** tu Canvas: no entrega, envía ni modifica nada.
 
 ## Cómo abrirlo
-1. Necesitas Python 3.11 o más nuevo en Windows (Microsoft Store: «Python 3.12», o python.org marcando **Add python.exe to PATH**).
-2. Haz **doble clic en `iniciar.bat`**. La primera vez prepara todo solo (unos minutos, necesita internet).
-3. Aparece un **ícono redondo** con un número rojo (tus pendientes) y un ícono azul con una "C" junto al reloj.
-4. La primera vez te pide conectarte (ver abajo). Después ya no te lo vuelve a pedir.
+1. Haz **doble clic en `iniciar.bat`**. Si no tienes Python (3.11 o más nuevo), el programa te pregunta y lo descarga e instala solo
+   desde python.org (verifica que el archivo sea el original; no necesita administrador). La primera vez prepara todo (unos minutos, necesita internet).
+2. Aparece un **ícono redondo** con un número rojo (tus pendientes) y un ícono azul con una "C" junto al reloj.
+3. La primera vez te pide conectarte (ver abajo). Después ya no te lo vuelve a pedir.
 
 ## Iniciar con Windows
 Abre el widget → ⚙ **Ajustes** → marca «Abrir el widget automáticamente al prender Windows» → Guardar.
 (Crea una entrada solo para tu usuario; se quita desmarcando la misma casilla. Si cambias la carpeta `canvas-widget` de lugar, vuelve a marcarla.)
 
-## Conectarte a Canvas (una sola vez)
-Elige **una** opción en la ventana «Conectar con Canvas». Lo que pegues se guarda en el
-**Administrador de credenciales de Windows**, nunca en un archivo.
+## Conectarte a tu plataforma (una sola vez)
+En la ventana «Conectar con tu plataforma» elige **una** opción. Lo que pegues se guarda en el
+**Administrador de credenciales de Windows**, nunca en un archivo. Para cambiarlo: botón **Conexión…** o clic derecho en el ícono de la bandeja.
 
-- **Token de acceso (recomendado):** en Canvas, foto de perfil → Configuración → «Integraciones aprobadas» →
+- **Canvas — token de acceso (recomendado):** en Canvas, foto de perfil → Configuración → «Integraciones aprobadas» →
   «+ Nuevo token de acceso». Deja la fecha de vencimiento vacía y copia el token (solo se muestra una vez).
-- **Enlace iCal (si no te deja crear tokens):** Calendario → «Fuente de calendario» → copia el enlace.
-  Limitación: con iCal no se sabe si ya entregaste una tarea, y no hay promedios, notas ni anuncios.
+  Escribe también la dirección de tu Canvas (la de CEUTEC viene puesta). Así se ven tareas, cursos, promedios, notas y anuncios.
+- **Cualquier plataforma — enlace de calendario (iCal):** busca en el calendario de tu plataforma «Exportar», «Suscribirse» o «Fuente / Feed».
+  - Canvas: Calendario → «Fuente de calendario».
+  - Moodle: Calendario → «Importar o exportar calendarios» → «Exportar calendario» → «Obtener URL del calendario».
+  - Google Classroom: en Google Calendar, ajustes del calendario de la clase → «Dirección secreta en formato iCal».
+  - Blackboard, Brightspace, Schoology…: busca «suscribirse» o «exportar calendario».
+
+  Limitaciones: solo se leen las fechas del calendario; no hay notas, promedios ni anuncios, no se sabe si ya entregaste una tarea
+  (por eso no avisa de «vencidas») y los eventos que se repiten no se expanden.
 
 ## El ícono y el panel
 - **Ícono redondo:** muestra cuántas tareas tienes pendientes. Se pone semitransparente cuando no lo usas.

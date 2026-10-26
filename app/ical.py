@@ -1,4 +1,5 @@
-"""Alternativa sin token: lee la 'Fuente de calendario' (iCal) de Canvas."""
+"""Lee un calendario iCal (.ics). Sirve para la 'Fuente de calendario' de Canvas y para cualquier otra
+plataforma que permita exportar o suscribirse a su calendario (Moodle, Google Classroom/Calendar, etc.)."""
 from __future__ import annotations
 
 import re
@@ -8,7 +9,8 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-from .config import URL_CANVAS, ZONA
+from .ajustes import url_canvas
+from .config import ZONA
 from .modelos import Pendiente
 
 
@@ -58,10 +60,12 @@ def parsear(texto: str) -> List[Pendiente]:
             campo, *params = nombre.split(";")
             actual[campo.upper()] = (valor, params)
 
+    # Canvas marca sus tareas con "assignment" en el UID; en otras plataformas se toman todos los eventos con fecha.
+    es_canvas = any("assignment" in ev.get("UID", ("", []))[0] for ev in eventos)
     salida: List[Pendiente] = []
     for ev in eventos:
         uid = ev.get("UID", ("", []))[0]
-        if "assignment" not in uid:  # solo tareas/quices, no eventos de calendario
+        if es_canvas and "assignment" not in uid:  # solo tareas/quices, no eventos de calendario
             continue
         if "DTSTART" not in ev or "SUMMARY" not in ev:
             continue
@@ -74,8 +78,11 @@ def parsear(texto: str) -> List[Pendiente]:
         if m:
             materia = m.group(1)
             resumen = resumen[: m.start()].strip()
-        url = _desescapar(ev["URL"][0]) if "URL" in ev else URL_CANVAS
-        salida.append(Pendiente(id=uid, titulo=resumen or "(sin nombre)", materia=materia,
+        elif "CATEGORIES" in ev:  # Moodle y otros guardan aqui el nombre del curso
+            materia = _desescapar(ev["CATEGORIES"][0]).split(",")[0].strip()
+        url = _desescapar(ev["URL"][0]) if "URL" in ev else (url_canvas() if es_canvas else "")
+        ident = uid or f"{resumen}|{ev['DTSTART'][0]}"
+        salida.append(Pendiente(id=ident, titulo=resumen or "(sin nombre)", materia=materia,
                                 vence=vence, url=url, entregada=None))
     return salida
 
