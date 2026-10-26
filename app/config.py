@@ -1,4 +1,5 @@
 """Ajustes generales (nada secreto aqui)."""
+import sys
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -7,6 +8,8 @@ DATOS = RAIZ / "datos"
 
 URL_CANVAS = "https://unitechonduras.instructure.com"
 ZONA = ZoneInfo("America/Tegucigalpa")
+
+FUENTE = "Segoe UI" if sys.platform == "win32" else "Helvetica Neue"  # letra del sistema
 
 INTERVALO_MINUTOS = 10     # revision automatica
 DIAS_ADELANTE = 7          # lo que se muestra en la lista

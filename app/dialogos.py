@@ -8,7 +8,8 @@ from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import (QCheckBox, QColorDialog, QComboBox, QDialog, QHBoxLayout, QLabel, QLineEdit, QPushButton,
                                QTimeEdit, QVBoxLayout)
 
-from . import credenciales, formato, iconos, inicio_windows
+from . import credenciales, formato, iconos, inicio_auto
+from .config import FUENTE
 from .ajustes import ESCALAS, FONDOS, ICONOS, Ajustes, normalizar_url, url_canvas, url_moodle
 from .plataformas import GUIAS_ICAL
 from .modelos import Pendiente
@@ -31,7 +32,7 @@ CREDENCIAL = {"canvas": credenciales.TOKEN, "moodle": credenciales.MOODLE, "ical
 
 
 class DialogoConexion(QDialog):
-    """Elige la plataforma y guarda el token / enlace en el Administrador de credenciales de Windows."""
+    """Elige la plataforma y guarda el token / enlace en el llavero seguro del sistema (Windows o Mac)."""
 
     def __init__(self, padre=None, ajustes: Ajustes | None = None):
         super().__init__(padre)
@@ -158,14 +159,14 @@ class AlertaUrgente(QDialog):
         self.resize(620, 320)
         lay = QVBoxLayout(self)
         t = QLabel("⚠ ENTREGA EN MENOS DE 1 HORA")
-        t.setFont(QFont("Segoe UI", 20, QFont.Bold))
+        t.setFont(QFont(FUENTE, 20, QFont.Bold))
         lay.addWidget(t)
         n = QLabel(p.titulo)
-        n.setFont(QFont("Segoe UI", 26, QFont.Bold))
+        n.setFont(QFont(FUENTE, 26, QFont.Bold))
         n.setWordWrap(True)
         lay.addWidget(n, 1)
         self.info = QLabel()
-        self.info.setFont(QFont("Segoe UI", 15))
+        self.info.setFont(QFont(FUENTE, 15))
         self.info.setWordWrap(True)
         lay.addWidget(self.info)
         fila = QHBoxLayout()
@@ -188,7 +189,7 @@ class AlertaUrgente(QDialog):
 
 
 class DialogoAjustes(QDialog):
-    """Tamano, inicio con Windows y resumen diario."""
+    """Tamano, inicio automatico y resumen diario."""
 
     def __init__(self, ajustes: Ajustes, padre=None):
         super().__init__(padre)
@@ -208,12 +209,12 @@ class DialogoAjustes(QDialog):
         fila.addWidget(self.c_tam, 1)
         lay.addLayout(fila)
 
-        self.c_inicio = QCheckBox("Abrir el widget automáticamente al prender Windows")
-        self.inicio_antes = inicio_windows.activo()
+        self.c_inicio = QCheckBox("Abrir el widget automáticamente al iniciar sesión en la computadora")
+        self.inicio_antes = inicio_auto.activo()
         self.c_inicio.setChecked(self.inicio_antes)
-        if not inicio_windows.disponible():
+        if not inicio_auto.disponible():
             self.c_inicio.setEnabled(False)
-            self.c_inicio.setToolTip("Solo funciona en Windows")
+            self.c_inicio.setToolTip("Solo funciona en Windows y Mac")
         lay.addWidget(self.c_inicio)
 
         self.c_resumen = QCheckBox("Enviarme un resumen diario (hoy y esta semana) a las:")
@@ -325,9 +326,9 @@ class DialogoAjustes(QDialog):
             return
         if self.c_inicio.isEnabled() and self.c_inicio.isChecked() != self.inicio_antes:
             try:
-                (inicio_windows.activar if self.c_inicio.isChecked() else inicio_windows.desactivar)()
+                (inicio_auto.activar if self.c_inicio.isChecked() else inicio_auto.desactivar)()
             except Exception as e:
-                self.estado.setText(f"No pude cambiar el inicio con Windows ({type(e).__name__}).")
+                self.estado.setText(f"No pude cambiar el inicio automático ({type(e).__name__}).")
                 return
         self.a["escala"] = ESCALAS[self.c_tam.currentText()]
         self.a["resumen_activo"] = self.c_resumen.isChecked()

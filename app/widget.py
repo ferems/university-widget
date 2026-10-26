@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (QApplication, QButtonGroup, QCheckBox, QFrame, QH
 
 from . import formato, geometria, iconos, resumen
 from .ajustes import Ajustes
-from .config import INTERVALO_MINUTOS, ZONA
+from .config import FUENTE, INTERVALO_MINUTOS, ZONA
 from .dialogos import AlertaUrgente, DialogoAjustes, DialogoConexion
 from .modelos import Pendiente
 from .notificaciones import Notificador
@@ -116,6 +116,7 @@ class WidgetCanvas(QWidget):
 
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_MacAlwaysShowToolWindow, True)  # Mac: no se esconde al cambiar de app
         self.setMouseTracking(True)
 
         self.trabajador = Trabajador(servicio)
@@ -336,7 +337,7 @@ class WidgetCanvas(QWidget):
                 p.setBrush(QColor("#ef4444"))
                 p.drawEllipse(QPointF(cx, cy), r, r)
                 p.setPen(QColor("white"))
-                f = QFont("Segoe UI", 1)
+                f = QFont(FUENTE, 1)
                 f.setPixelSize(self.px(12 if self.n_activos < 10 else 10))
                 f.setBold(True)
                 p.setFont(f)

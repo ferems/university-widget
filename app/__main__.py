@@ -6,7 +6,7 @@ from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QAction, QColor, QIcon, QPainter, QPixmap, QFont
 from PySide6.QtWidgets import QApplication, QMenu, QSystemTrayIcon
 
-from .config import DATOS
+from .config import DATOS, FUENTE
 from .notificaciones import Notificador
 from .servicio import Servicio
 from .widget import WidgetCanvas
@@ -21,7 +21,7 @@ def crear_icono() -> QIcon:
     p.setPen(Qt.NoPen)
     p.drawEllipse(4, 4, 56, 56)
     p.setPen(QColor("white"))
-    p.setFont(QFont("Segoe UI", 28, QFont.Bold))
+    p.setFont(QFont(FUENTE, 28, QFont.Bold))
     p.drawText(pm.rect(), Qt.AlignCenter, "C")
     p.end()
     return QIcon(pm)

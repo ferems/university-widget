@@ -9,13 +9,22 @@ Solo **lee** tu Canvas: no entrega, envía ni modifica nada.
 2. Aparece un **ícono redondo** con un número rojo (tus pendientes) y un ícono azul con una "C" junto al reloj.
 3. La primera vez te pide conectarte (ver abajo). Después ya no te lo vuelve a pedir.
 
-## Iniciar con Windows
-Abre el widget → ⚙ **Ajustes** → marca «Abrir el widget automáticamente al prender Windows» → Guardar.
-(Crea una entrada solo para tu usuario; se quita desmarcando la misma casilla. Si cambias la carpeta `canvas-widget` de lugar, vuelve a marcarla.)
+## Cómo abrirlo en Mac (versión de prueba)
+1. Necesitas **Python 3.11 o más nuevo** (si no lo tienes, instálalo desde https://www.python.org/downloads/macos/).
+2. Abre la app **Terminal**, escribe `bash ` (con un espacio al final), arrastra el archivo `iniciar.command` a la ventana y presiona Enter.
+   La primera vez prepara todo (unos minutos, necesita internet). Después también puedes darle doble clic a `iniciar.command`
+   si antes escribiste una sola vez `chmod +x ` + arrastrar el archivo + Enter.
+3. La primera vez macOS puede preguntar si permites notificaciones y si Python puede usar el llavero: di que **sí** para que funcionen los avisos y se guarde tu conexión.
+4. El ícono aparece como un círculo flotante y también en la barra de menú de arriba.
+*Esta versión se escribió sin tener una Mac para probarla: si algo falla, mira `datos/registro.log` y avísame.*
+
+## Iniciar con la computadora
+Abre el widget → ⚙ **Ajustes** → marca «Abrir el widget automáticamente al iniciar sesión en la computadora» → Guardar.
+(En Windows crea una entrada solo para tu usuario; en Mac crea un archivo en `~/Library/LaunchAgents`. Se quita desmarcando la misma casilla. Si cambias la carpeta `canvas-widget` de lugar, vuelve a marcarla.)
 
 ## Conectarte a tu plataforma (una sola vez)
 En la ventana «Conectar con tu plataforma» elige **una** opción. Lo que pegues se guarda en el
-**Administrador de credenciales de Windows**, nunca en un archivo. Para cambiarlo: botón **Conexión…** o clic derecho en el ícono de la bandeja.
+**Administrador de credenciales de Windows** (o el **Llavero** en Mac), nunca en un archivo. Para cambiarlo: botón **Conexión…** o clic derecho en el ícono de la bandeja.
 
 - **Canvas — token de acceso (recomendado):** en Canvas, foto de perfil → Configuración → «Integraciones aprobadas» →
   «+ Nuevo token de acceso». Deja la fecha de vencimiento vacía y copia el token (solo se muestra una vez).
@@ -35,6 +44,19 @@ En la ventana «Conectar con tu plataforma» elige **una** opción. Lo que pegue
   Limitaciones: solo se leen las fechas del calendario; no hay notas, promedios ni anuncios, no se sabe si ya entregaste una tarea
   (por eso no avisa de «vencidas») y las clases o eventos que se repiten sí se muestran en cada fecha.
 
+## UNAH y UNICAH (Moodle)
+Según las páginas oficiales y notas de prensa que se revisaron, ambas universidades usan **Moodle**, así que se conectan con la opción **Moodle** de la ventana de conexión.
+Esto **no se ha probado con una cuenta real** de ninguna de las dos; si algo falla, avisa.
+
+1. Entra a tu aula virtual y copia la **dirección completa** que ves arriba en el navegador (hasta el `.hn` o `.edu`).
+   - **UNAH:** documentos de la universidad dan como dirección `campusvirtual.unah.edu.hn`, pero pueden haberla cambiado; usa la que veas tú.
+   - **UNICAH:** se entra desde unicah.edu con el botón **UNICAH ID** y luego el módulo de clases. La guía oficial no da la dirección: cópiala de tu navegador.
+     (`unicah.neolms.com` es solo para Formación Continua, no para las carreras.)
+2. En el widget: **Conexión…** → **Moodle** → escribe esa dirección.
+3. En Moodle: tu foto de perfil → **Preferencias** → **Claves de seguridad** → copia la clave de «Moodle mobile web service» y pégala en el widget (nunca en un chat ni en un archivo).
+4. Si esa clave **no aparece** (la universidad puede desactivarla; UNICAH además entra por un inicio de sesión único): usa la opción **Otra plataforma** con el enlace de calendario
+   (Calendario → «Importar o exportar calendarios» → «Exportar calendario» → «Obtener URL»). Con eso solo verás fechas, sin notas, promedios ni anuncios.
+
 ## El ícono y el panel
 - **Ícono redondo:** muestra cuántas tareas tienes pendientes. Se pone semitransparente cuando no lo usas.
   Arrástralo adonde quieras; si lo sueltas cerca de un borde de la pantalla, se **pega al borde**. Recuerda dónde lo dejaste.
@@ -52,7 +74,7 @@ En la ventana «Conectar con tu plataforma» elige **una** opción. Lo que pegue
 - **Anuncios:** los anuncios recientes de tus docentes (con un punto azul los que aún no abriste).
 - **Notas:** el promedio por curso y tus últimas calificaciones.
 
-## Avisos de Windows
+## Avisos
 - Recordatorios a las 24 h, 3 h y 1 h antes de cada entrega y cuando una tarea queda vencida. Cada uno llega una sola vez.
 - Si falta menos de 1 hora: el ícono parpadea en rojo y sale una ventana grande encima de todo.
 - Aviso cuando aparece una tarea, anuncio, calificación o mensaje nuevo.
@@ -64,4 +86,4 @@ En la ventana «Conectar con tu plataforma» elige **una** opción. Lo que pegue
 Clic = mostrar/ocultar. Clic derecho = menú (actualizar, resumen, probar notificación, ajustes, conexión, salir).
 
 ## Si algo falla
-Mira `datos\registro.log` (no contiene tu token ni tu enlace).
+Mira `datos/registro.log` (no contiene tu token ni tu enlace).
